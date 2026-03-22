@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ESP32 Admin Panel</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #1e1e2e;
+        color: #cdd6f4;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #313244;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      }
+
+      h1 {
+        color: #89b4fa;
+        margin-bottom: 10px;
+        font-size: 28px;
+      }
+
+      .subtitle {
+        color: #a6e3a1;
+        margin-bottom: 30px;
+        font-size: 14px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #89b4fa;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 12px;
+        background: #1e1e2e;
+        border: 2px solid #45475a;
+        border-radius: 6px;
+        color: #cdd6f4;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        outline: none;
+        border-color: #89b4fa;
+      }
+
+      .ip-input-group {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+
+      .ip-input-group input {
+        width: 100%;
+      }
+
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      button:disabled:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      .validation-section {
+        background: #1e1e2e;
+        border-left: 4px solid #f9e2af;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 13px;
+      }
+
+      .validation-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        font-weight: 600;
+      }
+
+      .status-icon {
+        font-size: 18px;
+      }
+
+      .status-pending {
+        color: #f9e2af;
+      }
+
+      .status-valid {
+        color: #a6e3a1;
+      }
+
+      .status-invalid {
+        color: #f38ba8;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn-validate {
+        flex: 1;
+        min-width: 120px;
+        background: #f9e2af;
+        color: #1e1e2e;
+      }
+
+      .btn-validate:hover:not(:disabled) {
+        background: #f8d860;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(249, 226, 175, 0.3);
+      }
+
+      .btn-save {
+        flex: 2;
+        background: #a6e3a1;
+        color: #1e1e2e;
+      }
+
+      .btn-save:hover:not(:disabled) {
+        background: #94e2d5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(166, 227, 161, 0.3);
+      }
+
+      .btn-reset {
+        flex: 1;
+        background: #f38ba8;
+        color: #1e1e2e;
+      }
+
+      .btn-reset:hover:not(:disabled) {
+        background: #eba0ac;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(243, 139, 168, 0.3);
+      }
+
+      .info-panel {
+        background: #1e1e2e;
+        border-left: 4px solid #89b4fa;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 13px;
+      }
+
+      .info-panel strong {
+        color: #89b4fa;
+      }
+
+      .status-message {
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        display: none;
+        font-weight: 600;
+      }
+
+      .status-success {
+        background: #a6e3a1;
+        color: #1e1e2e;
+        display: block;
+      }
+
+      .status-error {
+        background: #f38ba8;
+        color: #1e1e2e;
+        display: block;
+      }
+
+      .status-info {
+        background: #89b4fa;
+        color: #1e1e2e;
+        display: block;
+      }
+
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .system-info {
+        background: #1e1e2e;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 20px;
+        font-size: 13px;
+      }
+
+      .system-info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #45475a;
+      }
+
+      .system-info-row:last-child {
+        border-bottom: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>ESP32 Admin Panel</h1>
+      <p class="subtitle">Industrial IoT Configuration Management</p>
+
+      <div class="info-panel">
+        <strong> Info:</strong> Update konfigurasi WiFi dan Static IP.
+        <strong style="color: #f9e2af">
+          IMPORTANT: Validate IP terlebih dahulu sebelum save atau factory
+          reset!</strong
+        >
+      </div>
+
+      <div id="statusMsg" class="status-message"></div>
+
+      <!-- IP Validation Section -->
+      <div class="validation-section">
+        <strong> IP Address Validation</strong>
+        <p style="margin: 8px 0 0 0; color: #a6a9a9">
+          Pastikan IP tidak conflict sebelum save config
+        </p>
+        <div class="validation-status">
+          <span class="status-icon pending" id="validationIcon"></span>
+          <span id="validationText"
+            >Validation pending - Please validate IP first</span
+          >
+        </div>
+      </div>
+
+      <form id="configForm">
+        <!-- WiFi SSID -->
+        <div class="form-group">
+          <label for="wifiSSID">WiFi SSID</label>
+          <input
+            type="text"
+            id="wifiSSID"
+            name="wifiSSID"
+            placeholder="Nama jaringan WiFi"
+            required
+          />
+        </div>
+
+        <!-- WiFi Password -->
+        <div class="form-group">
+          <label for="wifiPass">WiFi Password</label>
+          <input
+            type="password"
+            id="wifiPass"
+            name="wifiPass"
+            placeholder="Password WiFi"
+            required
+          />
+        </div>
+
+        <!-- Static IP -->
+        <div class="form-group">
+          <label>Static IP Address</label>
+          <div class="ip-input-group">
+            <input
+              type="text"
+              id="ipOctet1"
+              maxlength="3"
+              placeholder="1-255"
+              required
+            />
+            <input
+              type="text"
+              id="ipOctet2"
+              maxlength="3"
+              placeholder="1-255"
+              required
+            />
+            <input
+              type="text"
+              id="ipOctet3"
+              maxlength="3"
+              placeholder="1-255"
+              required
+            />
+            <input
+              type="text"
+              id="ipOctet4"
+              maxlength="3"
+              placeholder="1-255"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="button-group">
+          <button
+            type="button"
+            class="btn-validate"
+            id="validateBtn"
+            onclick="validateIP()"
+          >
+            Validate IP
+          </button>
+          <button type="submit" class="btn-save" id="saveBtn" disabled>
+            Simpan & Restart
+          </button>
+          <button
+            type="button"
+            class="btn-reset"
+            id="resetBtn"
+            disabled
+            onclick="factoryReset()"
+          >
+            Factory Reset
+          </button>
+        </div>
+      </form>
+
+      <!-- System Info -->
+      <div class="system-info">
+        <h3 style="margin-bottom: 12px; color: #89b4fa">System Information</h3>
+        <div id="sysInfo">Loading...</div>
+      </div>
+    </div>
+
+    <script>
+      // Load current config on page load
+      window.addEventListener("load", loadConfig);
+
+      // Auto-refresh system info every 10 seconds
+      setInterval(loadSystemInfo, 10000);
+
+      // Reset validation when IP changes
+      document
+        .getElementById("ipOctet1")
+        .addEventListener("change", resetValidation);
+      document
+        .getElementById("ipOctet2")
+        .addEventListener("change", resetValidation);
+      document
+        .getElementById("ipOctet3")
+        .addEventListener("change", resetValidation);
+      document
+        .getElementById("ipOctet4")
+        .addEventListener("change", resetValidation);
+
+      function loadConfig() {
+        fetch("/api/config")
+          .then((r) => r.json())
+          .then((data) => {
+            document.getElementById("wifiSSID").value = data.wifi_ssid || "";
+
+            if (data.static_ip) {
+              const parts = data.static_ip.split(".");
+              document.getElementById("ipOctet1").value = parts[0] || "";
+              document.getElementById("ipOctet2").value = parts[1] || "";
+              document.getElementById("ipOctet3").value = parts[2] || "";
+              document.getElementById("ipOctet4").value = parts[3] || "";
+            }
+
+            loadSystemInfo();
+          })
+          .catch((err) => showStatus("Error loading config: " + err, "error"));
+      }
+
+      function loadSystemInfo() {
+        fetch("/api/system")
+          .then((r) => r.json())
+          .then((data) => {
+            const html = `
+            <div class="system-info-row"><span>Device:</span><strong>${data.device}</strong></div>
+            <div class="system-info-row"><span>IP Address:</span><strong>${data.ip}</strong></div>
+            <div class="system-info-row"><span>WiFi SSID:</span><strong>${data.ssid || "Disconnected"}</strong></div>
+            <div class="system-info-row"><span>MAC Address:</span><strong>${data.mac}</strong></div>
+            <div class="system-info-row"><span>Free Heap:</span><strong>${(data.free_heap / 1024).toFixed(1)} KB</strong></div>
+            <div class="system-info-row"><span>Uptime:</span><strong>${Math.floor(data.uptime / 60)}m ${data.uptime % 60}s</strong></div>
+          `;
+            document.getElementById("sysInfo").innerHTML = html;
+          })
+          .catch((err) => {
+            document.getElementById("sysInfo").innerHTML =
+              '<span style="color: #f38ba8;">Error loading system info</span>';
+          });
+      }
+
+      async function validateIP() {
+        const ip = `${document.getElementById("ipOctet1").value}.${document.getElementById("ipOctet2").value}.${document.getElementById("ipOctet3").value}.${document.getElementById("ipOctet4").value}`;
+
+        // Validate IP format
+        if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+          updateValidationStatus(" Invalid IP format", "invalid");
+          showStatus("Invalid IP address format", "error");
+          return;
+        }
+
+        updateValidationStatus(" Validating IP...", "pending");
+        showStatus("Checking IP availability...", "info");
+        document.getElementById("validateBtn").disabled = true;
+
+        try {
+          const response = await fetch(`/api/validate-ip?ip=${ip}`);
+          const result = await response.json();
+
+          if (response.ok && result.available) {
+            // Validation passed!
+            updateValidationStatus(" IP validated - ready to save", "valid");
+            showStatus(" " + result.message, "success");
+            document.getElementById("saveBtn").disabled = false;
+            document.getElementById("resetBtn").disabled = false;
+          } else {
+            // Validation failed
+            updateValidationStatus(" " + result.message, "invalid");
+            showStatus(" " + (result.error || result.message), "error");
+            document.getElementById("saveBtn").disabled = true;
+            document.getElementById("resetBtn").disabled = true;
+          }
+        } catch (err) {
+          updateValidationStatus(" Validation error: " + err, "invalid");
+          showStatus(" Error: " + err, "error");
+          document.getElementById("saveBtn").disabled = true;
+          document.getElementById("resetBtn").disabled = true;
+        } finally {
+          document.getElementById("validateBtn").disabled = false;
+        }
+      }
+
+      function updateValidationStatus(message, status) {
+        document.getElementById("validationText").textContent = message;
+        const icon = document.getElementById("validationIcon");
+        const validationDiv = icon.parentElement;
+
+        validationDiv.classList.remove(
+          "status-pending",
+          "status-valid",
+          "status-invalid",
+        );
+        validationDiv.classList.add("status-" + status);
+      }
+
+      function resetValidation() {
+        updateValidationStatus(
+          " Validation pending - IP changed, please re-validate",
+          "pending",
+        );
+        document.getElementById("saveBtn").disabled = true;
+        document.getElementById("resetBtn").disabled = true;
+        showStatus(
+          "IP changed - validation reset. Please validate again.",
+          "info",
+        );
+      }
+
+      document
+        .getElementById("configForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const ip = `${document.getElementById("ipOctet1").value}.${document.getElementById("ipOctet2").value}.${document.getElementById("ipOctet3").value}.${document.getElementById("ipOctet4").value}`;
+
+          // Validate IP
+          if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+            showStatus("Invalid IP address format", "error");
+            return;
+          }
+
+          const config = {
+            wifi_ssid: document.getElementById("wifiSSID").value,
+            wifi_pass: document.getElementById("wifiPass").value,
+            static_ip: ip,
+          };
+
+          document.getElementById("configForm").classList.add("loading");
+          showStatus("Saving configuration...", "info");
+
+          try {
+            const response = await fetch("/api/config", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(config),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              showStatus(" " + result.message, "success");
+              resetValidation();
+              setTimeout(() => {
+                showStatus("Device restarting...", "info");
+              }, 2000);
+            } else {
+              showStatus(
+                " Error: " + (result.error || "Unknown error"),
+                "error",
+              );
+            }
+          } catch (err) {
+            showStatus(" Error: " + err, "error");
+          } finally {
+            document.getElementById("configForm").classList.remove("loading");
+          }
+        });
+
+      function factoryReset() {
+        if (
+          !confirm(
+            " Factory reset akan menghapus semua konfigurasi custom dan restart device. Lanjutkan?",
+          )
+        ) {
+          return;
+        }
+
+        showStatus("Melakukan factory reset...", "info");
+        document.getElementById("resetBtn").disabled = true;
+
+        fetch("/api/reset", { method: "POST" })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((err) => {
+                throw new Error(err.error || "Factory reset failed");
+              });
+            }
+            return response.json();
+          })
+          .then(() => {
+            showStatus(
+              " Factory reset berhasil. Device akan restart...",
+              "success",
+            );
+            resetValidation();
+          })
+          .catch((err) => {
+            showStatus(" Error: " + err.message, "error");
+            document.getElementById("resetBtn").disabled = false;
+          });
+      }
+
+      function showStatus(msg, type) {
+        const el = document.getElementById("statusMsg");
+        el.textContent = msg;
+        el.className = "status-message status-" + type;
+
+        if (type !== "info") {
+          setTimeout(() => (el.className = "status-message"), 5000);
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 40px;
+  background: #1e1e2e;
+  color: #cdd6f4;
+}
+
+h1 {
+  color: #89b4fa;
+}
+
+#status {
+  font-size: 18px;
+  margin: 20px 0;
+  color: #a6e3a1;
+}
+
+button {
+  padding: 12px 28px;
+  font-size: 16px;
+  background: #89b4fa;
+  color: #1e1e2e;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #b4befe;
+}
