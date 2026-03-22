@@ -2,6 +2,12 @@
 
 A hands-on learning repository containing lab projects in embedded systems and IoT. Projects progress from foundational concepts (GPIO, sensors, communication protocols) to advanced topics (real-time systems, network management, cloud integration, REST APIs, and production deployment strategies).
 
+## 📋 IoT Learning Roadmap
+
+![IoT for Beginners Roadmap](iot-for-beginners-roadmap.jpg)
+
+*Reference: This journey follows the structured learning path outlined in the Microsoft PlatformIO collaboration ([How Microsoft Leverages PlatformIO for IoT Development](https://piolabs.com/blog/news/microsoft-leverages-platformio.html))*
+
 ## 🎯 Goals
 
 - Document my learning journey in embedded systems development
@@ -116,6 +122,13 @@ MIT License - See LICENSE file for details
 I'm a Junior Embedded Systems/IoT Engineer learning full-stack development from hardware to cloud. This repository documents my journey and serves as a knowledge base for future reference.
 
 **Connect:** [GitHub Issues](https://github.com/Zaki-Fadlan/Embedded-Systems-Journey/issues) for questions or discussions.
+
+## 📚 References & Resources
+
+- **[Microsoft Leverages PlatformIO for IoT Development](https://piolabs.com/blog/news/microsoft-leverages-platformio.html)** - Official PlatformIO blog on enterprise IoT practices
+- [PlatformIO Official Documentation](https://docs.platformio.org/)
+- [ESP32 Technical Reference Manual](https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf)
+- [Arduino Reference](https://www.arduino.cc/reference/en/)
 
 ---
 
